@@ -1,0 +1,577 @@
+<!DOCTYPE html> (home page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Expense Tracker - Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header><h1>Expense Tracker</h1></header>
+  <nav>
+    <a href="budget.html">Set Budget</a>
+    <a href="add-expense.html">Add Expense</a>
+    <a href="warning.html">Budget Warning</a>
+    <a href="summary.html">Summary</a>
+  </nav>
+  <main>
+    <h2>Welcome!</h2>
+    <p>Track your expenses and stay within budget.</p>
+  </main>
+</body>
+</html>
+
+
+<!DOCTYPE html>(budget setting)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Set Budget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Set Your Monthly Budget</h2>
+  <input type="number" id="budgetInput" placeholder="Enter budget amount" />
+  <button onclick="setBudget()">Save Budget</button>
+  <script>
+    function setBudget() {
+      const budget = document.getElementById("budgetInput").value;
+      localStorage.setItem("budget", budget);
+      alert("Budget saved!");
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(add exp)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Expense</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Add Expense</h2>
+  <input type="text" id="desc" placeholder="Description" />
+  <input type="number" id="amount" placeholder="Amount" />
+  <button onclick="addExpense()">Add</button>
+  <script>
+    function addExpense() {
+      const desc = document.getElementById("desc").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+      expenses.push({ desc, amount });
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+      alert("Expense added!");
+    }
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(warning page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Budget Warning</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Budget Status</h2>
+  <div id="warning"></div>
+  <script>
+    const budget = parseFloat(localStorage.getItem("budget")) || 0;
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const warning = document.getElementById("warning");
+    if (total > budget) {
+      warning.innerHTML = `<p style="color:red;">Warning: Budget exceeded!</p>`;
+    } else {
+      warning.innerHTML = `<p style="color:green;">You're within budget.</p>`;
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(summary page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Summary</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Expense Summary</h2>
+  <div id="summary"></div>
+  <script>
+    const budget = parseFloat(localStorage.getItem("budget")) || 0;
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const remaining = budget - total;
+    document.getElementById("summary").innerHTML = `
+      <p>Total Budget: ₹${budget}</p>
+      <p>Total Expenses: ₹${total}</p>
+      <p>Remaining Amount: ₹${remaining}</p>
+    `;
+  </script>
+</body>
+</html>
+
+
+body {  (colour)
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background-color: #f4f4f4;
+}
+header {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+nav a {
+  margin: 10px;
+  text-decoration: none;
+  color: #333;
+}
+input {
+  margin: 10px;
+  padding: 8px;
+}
+button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+
+
+<!DOCTYPE html>(filter page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Filter by Category</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Filter Expenses by Category</h2>
+  <select id="categorySelect">
+    <option value="Food">Food</option>
+    <option value="Transport">Transport</option>
+    <option value="Bills">Bills</option>
+    <option value="Other">Other</option>
+  </select>
+  <button onclick="filterExpenses()">Filter</button>
+  <ul id="filteredList"></ul>
+  <script>
+    function filterExpenses() {
+      const selected = document.getElementById("categorySelect").value;
+      const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+      const filtered = expenses.filter(e => e.category === selected);
+      const list = document.getElementById("filteredList");
+      list.innerHTML = "";
+      filtered.forEach(e => {
+        const li = document.createElement("li");
+        li.textContent = `${e.desc} - ₹${e.amount}`;
+        list.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(edit exp)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Expense</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Edit Expense</h2>
+  <input type="number" id="index" placeholder="Expense Index" />
+  <input type="text" id="newDesc" placeholder="New Description" />
+  <input type="number" id="newAmount" placeholder="New Amount" />
+  <button onclick="editExpense()">Update</button>
+  <script>
+    function editExpense() {
+      const index = parseInt(document.getElementById("index").value);
+      const newDesc = document.getElementById("newDesc").value;
+      const newAmount = parseFloat(document.getElementById("newAmount").value);
+      let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+      if (expenses[index]) {
+        expenses[index].desc = newDesc;
+        expenses[index].amount = newAmount;
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        alert("Expense updated!");
+      } else {
+        alert("Invalid index.");
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(detl)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delete Expense</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Delete Expense</h2>
+  <input type="number" id="deleteIndex" placeholder="Expense Index" />
+  <button onclick="deleteExpense()">Delete</button>
+  <script>
+    function deleteExpense() {
+      const index = parseInt(document.getElementById("deleteIndex").value);
+      let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+      if (expenses[index]) {
+        expenses.splice(index, 1);
+        localStorage.setItem("expenses", JSON.stringify(expenses));
+        alert("Expense deleted!");
+      } else {
+        alert("Invalid index.");
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(monthly report)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Monthly Report</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Monthly Expense Report</h2>
+  <div id="monthlyReport"></div>
+  <script>
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const monthly = {};
+    expenses.forEach(e => {
+      const month = new Date(e.date).getMonth();
+      monthly[month] = (monthly[month] || 0) + e.amount;
+    });
+    const report = document.getElementById("monthlyReport");
+    for (const m in monthly) {
+      report.innerHTML += `<p>Month ${parseInt(m)+1}: ₹${monthly[m]}</p>`;
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(weekly report)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weekly Report</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Weekly Expense Report</h2>
+  <div id="weeklyReport"></div>
+  <script>
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const weekly = {};
+    expenses.forEach(e => {
+      const week = Math.floor(new Date(e.date).getDate() / 7);
+      weekly[week] = (weekly[week] || 0) + e.amount;
+    });
+    const report = document.getElementById("weeklyReport");
+    for (const w in weekly) {
+      report.innerHTML += `<p>Week ${parseInt(w)+1}: ₹${weekly[w]}</p>`;
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(graphical analysis)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Expense Charts</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Expense Breakdown</h2>
+  <canvas id="expenseChart" width="400" height="200"></canvas>
+  <script>
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const categories = {};
+    expenses.forEach(e => {
+      categories[e.category] = (categories[e.category] || 0) + e.amount;
+    });
+    const ctx = document.getElementById("expenseChart").getContext("2d");
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: Object.keys(categories),
+        datasets: [{
+          data: Object.values(categories),
+          backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe', '#ffce56']
+        }]
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(setting page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Settings</h2>
+  <label>
+    Currency:
+    <select id="currency">
+      <option value="₹">₹</option>
+      <option value="$">$</option>
+      <option value="€">€</option>
+    </select>
+  </label>
+  <button onclick="saveSettings()">Save</button>
+  <script>
+    function saveSettings() {
+      const currency = document.getElementById("currency").value;
+      localStorage.setItem("currency", currency);
+      alert("Settings saved!");
+    }
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(login page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Login</h2>
+  <input type="text" id="username" placeholder="Username" />
+  <input type="password" id="password" placeholder="Password" />
+  <button onclick="login()">Login</button>
+  <script>
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      const storedUser = localStorage.getItem("user");
+      const storedPass = localStorage.getItem("pass");
+      if (user === storedUser && pass === storedPass) {
+        alert("Login successful!");
+        window.location.href = "index.html";
+      } else {
+        alert("Invalid credentials.");
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(reg page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Register</h2>
+  <input type="text" id="newUser" placeholder="Username" />
+  <input type="password" id="newPass" placeholder="Password" />
+  <button onclick="register()">Register</button>
+  <script>
+    function register() {
+      const user = document.getElementById("newUser").value;
+      const pass = document.getElementById("newPass").value;
+      localStorage.setItem("user", user);
+      localStorage.setItem("pass", pass);
+      alert("Registration successful!");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>(reset data page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reset Data</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Reset All Data</h2>
+  <button onclick="resetData()">Clear Everything</button>
+  <script>
+    function resetData() {
+      localStorage.clear();
+      alert("All data has been reset.");
+    }
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(help /FAQ page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Help & FAQ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Help & FAQ</h2>
+  <ul>
+    <li><strong>How do I set a budget?</strong> → Go to the Budget page and enter your amount.</li>
+    <li><strong>Can I edit expenses?</strong> → Yes, use the Edit Expense page.</li>
+    <li><strong>How do I reset everything?</strong> → Use the Reset Data page.</li>
+  </ul>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(about page)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>About</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>About This Project</h2>
+  <p>This Expense Tracker was built as a final year project to help users manage their finances.</p>
+  <p>Features include budget setting, expense tracking, warnings, reports, and charts.</p>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(exp his)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Expense History</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Expense History</h2>
+  <ul id="historyList"></ul>
+  <script>
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const list = document.getElementById("historyList");
+    expenses.forEach((e, i) => {
+      const li = document.createElement("li");
+      li.textContent = `#${i + 1} - ${e.desc} | ₹${e.amount} | ${e.category || "Uncategorized"} | ${e.date || "No date"}`;
+      list.appendChild(li);
+    });
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(remaining display)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Remaining Budget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Remaining Budget</h2>
+  <div id="remainingDisplay"></div>
+  <script>
+    const budget = parseFloat(localStorage.getItem("budget")) || 0;
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const remaining = budget - total;
+    document.getElementById("remainingDisplay").innerHTML = `
+      <p>Budget: ₹${budget}</p>
+      <p>Spent: ₹${total}</p>
+      <p><strong>Remaining: ₹${remaining}</strong></p>
+    `;
+  </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>(dash board/summary)
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>Dashboard Overview</h2>
+  <div id="dashboard"></div>
+  <script>
+    const budget = parseFloat(localStorage.getItem("budget")) || 0;
+    const expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const remaining = budget - total;
+    const categories = {};
+    expenses.forEach(e => {
+      categories[e.category] = (categories[e.category] || 0) + e.amount;
+    });
+    let categoryBreakdown = "";
+    for (const cat in categories) {
+      categoryBreakdown += `<li>${cat}: ₹${categories[cat]}</li>`;
+    }
+    document.getElementById("dashboard").innerHTML = `
+      <p><strong>Total Budget:</strong> ₹${budget}</p>
+      <p><strong>Total Expenses:</strong> ₹${total}</p>
+      <p><strong>Remaining:</strong> ₹${remaining}</p>
+      <h3>Category Breakdown:</h3>
+      <ul>${categoryBreakdown}</ul>
+    `;
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
